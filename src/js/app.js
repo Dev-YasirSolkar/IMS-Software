@@ -1,6 +1,4 @@
 // Frontend JavaScript logic
-// Note: This script interacts with Electron's IPC API (window.electronAPI)
-// File operations will not work if index.html is opened directly in a browser.
 
 let products = []; // Array to hold product data
 
@@ -17,23 +15,24 @@ function generateUniqueId() {
 }
 
 // Function to get the full path for displaying an image stored locally
-// This uses IPC to get the application's user data path and constructs a file:// URL.
+// This function needs to construct a path that the renderer process can access.
+// In Electron, paths relative to the user data directory need to be handled carefully.
+// A common approach is to use a custom protocol or expose the user data path via IPC.
+// For this basic example, we'll use IPC to get the user data path and construct the file:// URL.
 async function getLocalImagePathForDisplay(relativePath) {
-    if (!relativePath || !window.electronAPI || typeof window.electronAPI.getImsDataPath !== 'function') {
-         // Fallback to placeholder if Electron API or getImsDataPath is not available
-         console.warn("Electron API or getImsDataPath not available for image display.");
+    if (!relativePath || !window.electronAPI || typeof window.electronAPI.getDataPath !== 'function') {
+         // Fallback to placeholder if Electron API or getDataPath is not available
+         console.warn("Electron API or getDataPath not available for image display.");
          return 'https://placehold.co/50x50/e2e8f0/a0aec0?text=No+Image';
     }
 
     try {
-        const imsDataPath = await window.electronAPI.getImsDataPath();
-        const fullPath = path.join(imsDataPath, relativePath);
+        const userDataPath = await window.electronAPI.getDataPath();
+        const fullPath = path.join(userDataPath, relativePath);
         // Use file:// protocol to access local files in the renderer
-        // Note: path module is available in the preload script and exposed via electronAPI if needed in renderer
-        // For constructing file:// URLs, `path.join` is generally safe in renderer if base path is trusted.
-        return `file://${fullPath.replace(/\\/g, '/')}`; // Replace backslashes for URL compatibility on Windows
+        return `file://${fullPath}`;
     } catch (error) {
-        console.error("Error getting IMS data path for image display:", error);
+        console.error("Error getting data path for image display:", error);
         return 'https://placehold.co/50x50/e2e8f0/a0aec0?text=Error'; // Error placeholder
     }
 }
@@ -87,9 +86,9 @@ async function renderProducts() {
         return;
     }
 
-    // Use Promise.all to wait for all image path resolutions before rendering
+    // Use Promise.all to wait for all image path resolutions
     const productRows = await Promise.all(products.map(async product => {
-        // Resolve image path for display using the async function
+        // Resolve image path for display using the new async function
         const imageSrc = product.imagePath
             ? await getLocalImagePathForDisplay(product.imagePath)
             : 'https://placehold.co/50x50/e2e8f0/a0aec0?text=No+Image'; // Placeholder
