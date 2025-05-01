@@ -1,0 +1,27 @@
+[
+    {
+      "id": "prod-abc123",
+      "name": "Widget A",
+      "sku": "WA-001",
+      "price": 10.50,
+      "stock": 150,
+      "imagePath": "images/widget-a.png"
+    },
+    {
+      "id": "prod-xyz456",
+      "name": "Gadget B",
+      "sku": "GB-002",
+      "price": 25.00,
+      "stock": 75,
+      "imagePath": "images/gadget-b.jpg"
+    },
+    {
+      "id": "prod-qwe789",
+      "name": "Thingamajig C",
+      "sku": "TC-003",
+      "price": 5.75,
+      "stock": 300,
+      "imagePath": ""
+    }
+  ]
+  

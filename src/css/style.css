@@ -1,0 +1,18 @@
+/* Add any custom CSS here if needed */
+/* Tailwind provides most styling, but you can add overrides or specifics */
+
+.view {
+    /* Styles for view containers */
+}
+
+.hidden {
+    display: none;
+}
+
+/* Style for the image preview in the table */
+.product-image-thumb {
+    width: 50px; /* Adjust size as needed */
+    height: 50px; /* Adjust size as needed */
+    object-fit: cover; /* Crop image to fit */
+    border-radius: 4px; /* Optional: slight rounded corners */
+}
