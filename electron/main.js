@@ -2,15 +2,14 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs-extra'); // Use fs-extra for easier file operations
 
-const dataPath = app.getPath('userData'); // Get the user data path
-const imsDataPath = path.join(dataPath, 'ims-data'); // Subdirectory for IMS data
-const productsFilePath = path.join(imsDataPath, 'products.json');
-const imagesPath = path.join(imsDataPath, 'images'); // Directory for product images
+const dataPath = path.join(app.getPath('userData'), 'ims-data');
+const productsFilePath = path.join(dataPath, 'products.json');
+const imagesPath = path.join(dataPath, 'images'); // Directory for product images
 
 // Ensure the data directory and files exist
 function ensureDataDirectoryAndFiles() {
-  if (!fs.existsSync(imsDataPath)) {
-    fs.mkdirSync(imsDataPath, { recursive: true });
+  if (!fs.existsSync(dataPath)) {
+    fs.mkdirSync(dataPath, { recursive: true });
   }
   if (!fs.existsSync(productsFilePath)) {
     fs.writeFileSync(productsFilePath, '[]', 'utf8'); // Create with empty array
@@ -57,9 +56,9 @@ app.on('window-all-closed', function () {
 
 // --- IPC Handlers (Main Process) ---
 
-// Handler to expose the IMS data path
-ipcMain.handle('get-ims-data-path', () => {
-    return imsDataPath;
+// Handler to expose the user data path
+ipcMain.handle('get-data-path', () => {
+    return dataPath;
 });
 
 
@@ -143,7 +142,7 @@ ipcMain.handle('copy-image-to-data', async (event, originalPath) => {
 
     const fileName = path.basename(originalPath);
     const destinationPath = path.join(imagesPath, fileName);
-    const relativePath = path.join('images', fileName); // Path relative to imsDataPath
+    const relativePath = path.join('images', fileName); // Path relative to dataPath
 
     try {
         // Ensure the images directory exists before copying
@@ -165,7 +164,7 @@ ipcMain.handle('delete-file', async (event, relativePath) => {
         console.error("IPC: No relative path provided for delete-file.");
         return { success: false, error: 'No file path provided' };
     }
-    const fullPath = path.join(imsDataPath, relativePath);
+    const fullPath = path.join(dataPath, relativePath);
     try {
         await fs.remove(fullPath); // Use fs-extra's remove for files/folders
         console.log(`IPC: File deleted: ${fullPath}`);
